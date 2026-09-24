@@ -92,7 +92,7 @@ async function processLogin(event) {
                 token = data.token || data["auth-token"];
                 isAdmin = data.isAdmin === true || data.isAdmin === "true";
             } else {
-                const parts = text.split(/s+/);
+                const parts = text.split(/\s+/);
                 if (parts.length !== 2 || !["true", "false"].includes(parts[1])) {
                     throw new Error("Invalid login response.");
                 }
