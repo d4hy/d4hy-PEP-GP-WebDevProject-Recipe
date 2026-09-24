@@ -4,86 +4,139 @@
 
 const BASE_URL = "http://localhost:8081"; // backend URL
 
-/* 
- * TODO: Get references to various DOM elements
- * - addIngredientNameInput
- * - deleteIngredientNameInput
- * - ingredientListContainer
- * - searchInput (optional for future use)
- * - adminLink (if visible conditionally)
- */
+const addIngredientNameInput = document.getElementById("add-ingredient-name-input");
+const deleteIngredientNameInput = document.getElementById("delete-ingredient-name-input");
+const ingredientListContainer = document.getElementById("ingredient-list");
 
-/* 
- * TODO: Attach 'onclick' events to:
- * - "add-ingredient-submit-button" → addIngredient()
- * - "delete-ingredient-submit-button" → deleteIngredient()
- */
+document.getElementById("add-ingredient-form").addEventListener("submit", event => {
+    event.preventDefault();
+    addIngredient();
+});
+document.getElementById("delete-ingredient-form").addEventListener("submit", event => {
+    event.preventDefault();
+    deleteIngredient();
+});
 
-/*
- * TODO: Create an array to keep track of ingredients
- */
+let ingredients = [];
 
-/* 
- * TODO: On page load, call getIngredients()
- */
+// Load the current ingredient list when the page opens.
+getIngredients();
 
+function hasAdminAccess() {
+    if (!sessionStorage.getItem("auth-token")) {
+        window.location.replace("../login/login-page.html");
+        return false;
+    }
+    if (sessionStorage.getItem("is-admin") !== "true") {
+        window.location.replace("../recipe/recipe-page.html");
+        return false;
+    }
+    return true;
+}
 
-/**
- * TODO: Add Ingredient Function
- * 
- * Requirements:
- * - Read and trim value from addIngredientNameInput
- * - Validate input is not empty
- * - Send POST request to /ingredients
- * - Include Authorization token from sessionStorage
- * - On success: clear input, call getIngredients() and refreshIngredientList()
- * - On failure: alert the user
- */
+async function ingredientRequest(path, method = "GET", body) {
+    const headers = {
+        "Authorization": "Bearer " + sessionStorage.getItem("auth-token")
+    };
+    if (body !== undefined) {
+        headers["Content-Type"] = "application/json";
+    }
+    const response = await fetch(`${BASE_URL}${path}`, {
+        method,
+        headers,
+        body: body === undefined ? undefined : JSON.stringify(body)
+    });
+    if (!response.ok) {
+        throw new Error(response.status === 401 || response.status === 403
+            ? "Admin access is required. Please check your login."
+            : "Ingredient request failed. Please try again.");
+    }
+    return method === "GET" ? response.json() : null;
+}
+
 async function addIngredient() {
-    // Implement add ingredient logic here
+    if (!hasAdminAccess()) {
+        return;
+    }
+
+    const name = addIngredientNameInput.value.trim();
+    if (!name) {
+        alert("Please enter an ingredient name.");
+        return;
+    }
+    try {
+        await ingredientRequest("/ingredients", "POST", { name });
+        addIngredientNameInput.value = "";
+        await getIngredients();
+    } catch (error) {
+        console.error("Adding ingredient failed:", error);
+        alert(error.message);
+    }
 }
 
-
-/**
- * TODO: Get Ingredients Function
- * 
- * Requirements:
- * - Fetch all ingredients from backend
- * - Store result in `ingredients` array
- * - Call refreshIngredientList() to display them
- * - On error: alert the user
- */
 async function getIngredients() {
-    // Implement get ingredients logic here
+    if (!hasAdminAccess()) {
+        return false;
+    }
+
+    try {
+        const data = await ingredientRequest("/ingredients");
+        if (!Array.isArray(data)) {
+            throw new Error("Unable to read the ingredient list.");
+        }
+
+        ingredients = data;
+        refreshIngredientList();
+        return true;
+    } catch (error) {
+        console.error("Loading ingredients failed:", error);
+        alert(error.message);
+        return false;
+    }
 }
 
-
-/**
- * TODO: Delete Ingredient Function
- * 
- * Requirements:
- * - Read and trim value from deleteIngredientNameInput
- * - Search ingredientListContainer's <li> elements for matching name
- * - Determine ID based on index (or other backend logic)
- * - Send DELETE request to /ingredients/{id}
- * - On success: call getIngredients() and refreshIngredientList(), clear input
- * - On failure or not found: alert the user
- */
 async function deleteIngredient() {
-    // Implement delete ingredient logic here
+    if (!hasAdminAccess()) {
+        return;
+    }
+
+    const name = deleteIngredientNameInput.value.trim();
+    if (!name) {
+        alert("Please enter an ingredient name.");
+        return;
+    }
+    if (!await getIngredients()) {
+        return;
+    }
+
+    // Use the backend ID, which may differ from the list position after deletion.
+    const matches = ingredients.filter(ingredient => ingredient.name.toLowerCase() === name.toLowerCase());
+    if (matches.length !== 1) {
+        if (matches.length) {
+            alert("More than one ingredient has that name. Please use a unique ingredient name.");
+        } else {
+            alert("Ingredient not found.");
+        }
+        return;
+    }
+    try {
+        await ingredientRequest(`/ingredients/${matches[0].id}`, "DELETE");
+        deleteIngredientNameInput.value = "";
+        await getIngredients();
+    } catch (error) {
+        console.error("Deleting ingredient failed:", error);
+        alert(error.message);
+    }
 }
 
-
-/**
- * TODO: Refresh Ingredient List Function
- * 
- * Requirements:
- * - Clear ingredientListContainer
- * - Loop through `ingredients` array
- * - For each ingredient:
- *   - Create <li> and inner <p> with ingredient name
- *   - Append to container
- */
 function refreshIngredientList() {
-    // Implement ingredient list rendering logic here
+    ingredientListContainer.replaceChildren();
+    ingredients.forEach(ingredient => {
+        const item = document.createElement("li");
+        const name = document.createElement("p");
+        item.dataset.id = ingredient.id;
+        name.textContent = ingredient.name;
+        item.appendChild(name);
+        ingredientListContainer.appendChild(item);
+    });
 }

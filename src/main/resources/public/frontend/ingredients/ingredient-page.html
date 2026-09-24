@@ -7,24 +7,25 @@
     <link rel="stylesheet" href="ingredient-page.css">
 </head>
 <body>
+    <a id="back-link" href="../recipe/recipe-page.html">Back to Recipes</a>
+    <h1>Ingredient Management</h1>
 
-    <!-- TODO: Create a link back to the recipe page with an id of "back-link" -->
+    <h2>Ingredients</h2>
+    <ul id="ingredient-list" aria-live="polite"></ul>
 
-    <!-- TODO: Create a heading for the page -->
+    <h2>Add an Ingredient</h2>
+    <form id="add-ingredient-form" novalidate>
+        <label for="add-ingredient-name-input">Ingredient name</label>
+        <input id="add-ingredient-name-input" required>
+        <button id="add-ingredient-submit-button" type="submit">Add Ingredient</button>
+    </form>
 
-    <!-- TODO: Create a section to display the list of ingredients -->
-    <!-- - Include an h2 titled "Ingredients" -->
-    <!-- - Include a <ul> with id "ingredient-list" -->
-
-    <!-- TODO: Create a section to add a new ingredient -->
-    <!-- - Include an h2 titled "Add an Ingredient" -->
-    <!-- - Include an input field with id "add-ingredient-name-input" -->
-    <!-- - Include a button with id "add-ingredient-submit-button" -->
-
-    <!-- TODO: Create a section to delete an ingredient -->
-    <!-- - Include an h2 titled "Delete an Ingredient" -->
-    <!-- - Include an input field with id "delete-ingredient-name-input" -->
-    <!-- - Include a button with id "delete-ingredient-submit-button" -->
+    <h2>Delete an Ingredient</h2>
+    <form id="delete-ingredient-form" novalidate>
+        <label for="delete-ingredient-name-input">Ingredient name</label>
+        <input id="delete-ingredient-name-input" required>
+        <button id="delete-ingredient-submit-button" type="submit">Delete Ingredient</button>
+    </form>
 
     <script src="ingredient-page.js"></script>
 </body>

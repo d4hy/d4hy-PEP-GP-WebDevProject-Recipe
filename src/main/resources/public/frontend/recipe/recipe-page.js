@@ -8,112 +8,219 @@ let recipes = [];
 
 // Wait for DOM to fully load before accessing elements
 window.addEventListener("DOMContentLoaded", () => {
+    const addNameInput = document.getElementById("add-recipe-name-input");
+    const addInstructionsInput = document.getElementById("add-recipe-instructions-input");
+    const updateNameInput = document.getElementById("update-recipe-name-input");
+    const updateInstructionsInput = document.getElementById("update-recipe-instructions-input");
+    const deleteNameInput = document.getElementById("delete-recipe-name-input");
+    const recipeList = document.getElementById("recipe-list");
+    const adminLink = document.getElementById("admin-link");
+    const logoutButton = document.getElementById("logout-button");
+    const searchInput = document.getElementById("search-input");
 
-    /* 
-     * TODO: Get references to various DOM elements
-     * - Recipe name and instructions fields (add, update, delete)
-     * - Recipe list container
-     * - Admin link and logout button
-     * - Search input
-    */
+    // Show logout only while the browser tab has an authentication token.
+    logoutButton.hidden = !sessionStorage.getItem("auth-token");
 
-    /*
-     * TODO: Show logout button if auth-token exists in sessionStorage
-     */
+    // Show the ingredient link only to an authenticated administrator.
+    function displayAdminLink() {
+        adminLink.hidden = !(sessionStorage.getItem("auth-token") &&
+            sessionStorage.getItem("is-admin") === "true");
+    }
+    displayAdminLink();
 
-    /*
-     * TODO: Show admin link if is-admin flag in sessionStorage is "true"
-     */
+    document.getElementById("add-recipe-form").addEventListener("submit", event => {
+        event.preventDefault();
+        addRecipe();
+    });
+    document.getElementById("update-recipe-form").addEventListener("submit", event => {
+        event.preventDefault();
+        updateRecipe();
+    });
+    document.getElementById("delete-recipe-form").addEventListener("submit", event => {
+        event.preventDefault();
+        deleteRecipe();
+    });
+    document.getElementById("search-form").addEventListener("submit", event => {
+        event.preventDefault();
+        searchRecipes();
+    });
+    logoutButton.addEventListener("click", processLogout);
 
-    /*
-     * TODO: Attach event handlers
-     * - Add recipe button → addRecipe()
-     * - Update recipe button → updateRecipe()
-     * - Delete recipe button → deleteRecipe()
-     * - Search button → searchRecipes()
-     * - Logout button → processLogout()
-     */
+    // Populate the recipe list when the page loads.
+    getRecipes();
 
-    /*
-     * TODO: On page load, call getRecipes() to populate the list
-     */
+    function requireLogin() {
+        if (sessionStorage.getItem("auth-token")) {
+            return true;
+        }
+        alert("Please log in first.");
+        return false;
+    }
 
+    async function recipeRequest(path, method = "GET", body) {
+        const headers = {
+            "Authorization": "Bearer " + sessionStorage.getItem("auth-token")
+        };
+        if (body !== undefined) {
+            headers["Content-Type"] = "application/json";
+        }
+        const response = await fetch(`${BASE_URL}${path}`, {
+            method,
+            headers,
+            body: body === undefined ? undefined : JSON.stringify(body)
+        });
+
+        // The supplied backend returns 404 when the recipe collection is empty.
+        if (method === "GET" && path === "/recipes" && response.status === 404) {
+            return [];
+        }
+        if (!response.ok) {
+            if (response.status === 401 || response.status === 403) {
+                throw new Error("You are not authorized to perform this action. Please check your login.");
+            }
+            throw new Error("Recipe request failed. Please try again.");
+        }
+        return method === "GET" ? response.json() : null;
+    }
+
+    function findRecipe(name) {
+        const matches = recipes.filter(recipe => recipe.name.toLowerCase() === name.toLowerCase());
+        if (matches.length !== 1) {
+            if (matches.length) {
+                alert("More than one recipe has that name. Please use a unique recipe name.");
+            } else {
+                alert("Recipe not found.");
+            }
+            return null;
+        }
+        return matches[0];
+    }
 
     /**
-     * TODO: Search Recipes Function
-     * - Read search term from input field
-     * - Send GET request with name query param
-     * - Update the recipe list using refreshRecipeList()
-     * - Handle fetch errors and alert user
+     * Search uses the current input value when refreshRecipeList filters the loaded recipes.
      */
     async function searchRecipes() {
-        // Implement search logic here
+        refreshRecipeList();
     }
 
-    /**
-     * TODO: Add Recipe Function
-     * - Get values from add form inputs
-     * - Validate both name and instructions
-     * - Send POST request to /recipes
-     * - Use Bearer token from sessionStorage
-     * - On success: clear inputs, fetch latest recipes, refresh the list
-     */
     async function addRecipe() {
-        // Implement add logic here
+        if (!requireLogin()) {
+            return;
+        }
+        const name = addNameInput.value.trim();
+        const instructions = addInstructionsInput.value.trim();
+        if (!name || !instructions) {
+            alert("Please enter a recipe name and instructions.");
+            return;
+        }
+        try {
+            await recipeRequest("/recipes", "POST", { name, instructions });
+            addNameInput.value = "";
+            addInstructionsInput.value = "";
+            await getRecipes();
+        } catch (error) {
+            console.error("Adding recipe failed:", error);
+            alert(error.message);
+        }
     }
 
-    /**
-     * TODO: Update Recipe Function
-     * - Get values from update form inputs
-     * - Validate both name and updated instructions
-     * - Fetch current recipes to locate the recipe by name
-     * - Send PUT request to update it by ID
-     * - On success: clear inputs, fetch latest recipes, refresh the list
-     */
     async function updateRecipe() {
-        // Implement update logic here
+        if (!requireLogin()) {
+            return;
+        }
+        const name = updateNameInput.value.trim();
+        const instructions = updateInstructionsInput.value.trim();
+        if (!name || !instructions) {
+            alert("Please enter a recipe name and new instructions.");
+            return;
+        }
+        if (!await getRecipes()) {
+            return;
+        }
+        const recipe = findRecipe(name);
+        if (!recipe) {
+            return;
+        }
+        try {
+            await recipeRequest(`/recipes/${recipe.id}`, "PUT", { instructions });
+            updateNameInput.value = "";
+            updateInstructionsInput.value = "";
+            await getRecipes();
+        } catch (error) {
+            console.error("Updating recipe failed:", error);
+            alert(error.message);
+        }
     }
 
-    /**
-     * TODO: Delete Recipe Function
-     * - Get recipe name from delete input
-     * - Find matching recipe in list to get its ID
-     * - Send DELETE request using recipe ID
-     * - On success: refresh the list
-     */
     async function deleteRecipe() {
-        // Implement delete logic here
+        if (!requireLogin()) {
+            return;
+        }
+        const name = deleteNameInput.value.trim();
+        if (!name) {
+            alert("Please enter a recipe name.");
+            return;
+        }
+        if (!await getRecipes()) {
+            return;
+        }
+        const recipe = findRecipe(name);
+        if (!recipe) {
+            return;
+        }
+        try {
+            await recipeRequest(`/recipes/${recipe.id}`, "DELETE");
+            deleteNameInput.value = "";
+            await getRecipes();
+        } catch (error) {
+            console.error("Deleting recipe failed:", error);
+            alert(error.message);
+        }
     }
 
-    /**
-     * TODO: Get Recipes Function
-     * - Fetch all recipes from backend
-     * - Store in recipes array
-     * - Call refreshRecipeList() to display
-     */
     async function getRecipes() {
-        // Implement get logic here
+        try {
+            const data = await recipeRequest("/recipes");
+            if (!Array.isArray(data)) {
+                throw new Error("Unable to read the recipe list.");
+            }
+            recipes = data;
+            refreshRecipeList();
+            return true;
+        } catch (error) {
+            console.error("Loading recipes failed:", error);
+            alert(error.message);
+            return false;
+        }
     }
 
-    /**
-     * TODO: Refresh Recipe List Function
-     * - Clear current list in DOM
-     * - Create <li> elements for each recipe with name + instructions
-     * - Append to list container
-     */
     function refreshRecipeList() {
-        // Implement refresh logic here
+        const term = searchInput.value.trim().toLowerCase();
+        recipeList.replaceChildren();
+
+        // Every recipe name includes an empty string, so a blank search displays all recipes.
+        recipes.filter(recipe => recipe.name.toLowerCase().includes(term)).forEach(recipe => {
+            const item = document.createElement("li");
+            const name = document.createElement("strong");
+            const instructions = document.createElement("div");
+            instructions.className = "recipe-instructions";
+            item.dataset.id = recipe.id;
+            name.textContent = recipe.name;
+            instructions.textContent = recipe.instructions;
+            item.append(name, instructions);
+            recipeList.appendChild(item);
+        });
     }
 
-    /**
-     * TODO: Logout Function
-     * - Send POST request to /logout
-     * - Use Bearer token from sessionStorage
-     * - On success: clear sessionStorage and redirect to login
-     * - On failure: alert the user
-     */
     async function processLogout() {
-        // Implement logout logic here
+        try {
+            await recipeRequest("/logout", "POST");
+            sessionStorage.removeItem("auth-token");
+            sessionStorage.removeItem("is-admin");
+            window.location.href = "../login/login-page.html";
+        } catch (error) {
+            console.error("Logout failed:", error);
+            alert("Unable to log out. Please try again.");
+        }
     }
-
 });

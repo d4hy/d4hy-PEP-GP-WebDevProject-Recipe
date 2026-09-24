@@ -14,20 +14,36 @@
 <body>
 
     <!-- TODO: Add a heading (h1) with text "Register" -->
+    <h1>Register</h1>
 
-    <!-- TODO: Add a label or paragraph for "Username" -->
-    <!-- TODO: Add an input element for username with id="username-input" -->
-
-    <!-- TODO: Add a label or paragraph for "Email" -->
-    <!-- TODO: Add an input element for email with id="email-input" and type="email" -->
-
-    <!-- TODO: Add a label or paragraph for "Password" -->
-    <!-- TODO: Add an input element for password with id="password-input" and type="password" -->
-
-    <!-- TODO: Add a label or paragraph for "Repeat Password" -->
-    <!-- TODO: Add an input element for repeat password with id="repeat-password-input" and type="password" -->
-
-    <!-- TODO: Add a register button with id="register-button" and text "Register" -->
+    <form novalidate>
+        <p>
+            <!-- TODO: Add a label or paragraph for "Username" -->
+            <label for="username-input">Username</label>
+            <!-- TODO: Add an input element for username with id="username-input" -->
+            <input id="username-input" name="username" type="text" autocomplete="username" required>
+        </p>
+        <p>
+            <!-- TODO: Add a label or paragraph for "Email" -->
+            <label for="email-input">Email</label>
+            <!-- TODO: Add an input element for email with id="email-input" and type="email" -->
+            <input id="email-input" name="email" type="email" autocomplete="email" required>
+        </p>
+        <p>
+            <!-- TODO: Add a label or paragraph for "Password" -->
+            <label for="password-input">Password</label>
+            <!-- TODO: Add an input element for password with id="password-input" and type="password" -->
+            <input id="password-input" name="password" type="password" autocomplete="new-password" required>
+        </p>
+        <p>
+            <!-- TODO: Add a label or paragraph for "Repeat Password" -->
+            <label for="repeat-password-input">Repeat Password</label>
+            <!-- TODO: Add an input element for repeat password with id="repeat-password-input" and type="password" -->
+            <input id="repeat-password-input" name="repeat-password" type="password" autocomplete="new-password" required>
+        </p>
+        <!-- TODO: Add a register button with id="register-button" and text "Register" -->
+        <button id="register-button" type="submit">Register</button>
+    </form>
 
     <script src="register-page.js"></script>
 </body>

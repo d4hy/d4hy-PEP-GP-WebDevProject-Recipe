@@ -1,5 +1,125 @@
 /**
  * This file contains styles for the ingredient-page.html file.
-
- * It should define the visual appearance of the recipe list, forms, and other related elements.
+ * It defines the visual appearance of the ingredient list and forms.
  */
+
+ * {
+  box-sizing: border-box;
+}
+
+html {
+  background-color: #f4f4f4;
+}
+
+body {
+  width: 100%;
+  max-width: 900px;
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: 32px 20px 48px;
+  font-family: Arial, sans-serif;
+  color: #333;
+  line-height: 1.5;
+}
+
+#back-link {
+  display: inline-block;
+  margin-bottom: 12px;
+  color: #2563eb;
+}
+
+h1 {
+  margin: 12px 0 28px;
+  font-size: 2.25rem;
+}
+
+h2 {
+  margin: 30px 0 10px;
+  font-size: 1.35rem;
+}
+
+#ingredient-list {
+  display: grid;
+  gap: 12px;
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+#ingredient-list li {
+  padding: 16px 20px;
+  background-color: #fff;
+  border-left: 4px solid #2563eb;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+#ingredient-list li p {
+  margin: 0;
+}
+
+form {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 24px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+label {
+  font-weight: 600;
+}
+
+input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #aaa;
+  border-radius: 4px;
+  font: inherit;
+}
+
+input:focus {
+  border-color: #2563eb;
+  outline: 2px solid rgba(37, 99, 235, 0.2);
+}
+
+button {
+  padding: 10px 16px;
+  border: 0;
+  border-radius: 4px;
+  background-color: #2563eb;
+  color: #fff;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #1d4ed8;
+}
+
+#delete-ingredient-submit-button {
+  background-color: #dc2626;
+}
+
+#delete-ingredient-submit-button:hover {
+  background-color: #b91c1c;
+}
+
+@media (max-width: 600px) {
+  body {
+      padding: 20px 14px 36px;
+  }
+
+  form {
+      grid-template-columns: 1fr;
+      padding: 18px;
+  }
+
+  button {
+      width: 100%;
+  }
+}

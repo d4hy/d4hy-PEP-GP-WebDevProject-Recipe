@@ -1,45 +1,166 @@
 /**
  * This file contains styles for the recipe-page.html file.
-
- * It should define the visual appearance of the recipe list, forms, and other related elements.
-
- * TODO (OPTIONAL): Not mandatory to modify the file and is optional
- * - Customize margins and padding for specific elements to improve spacing.
- * - Add hover effects or transitions for interactive elements (e.g., buttons, links).
- * - Refine input and textarea styling for better responsiveness and accessibility.
- * - Define additional styles for error messages or validation feedback if required.
-
+ * It defines the visual appearance of the recipe list and forms.
  */
 
- body, h1, h2, ul, li, p, input, textarea, a {
-    margin: 2px;
-    margin-left: 50px;
-    padding: 0;
+ * {
+    box-sizing: border-box;
 }
 
+html {
+    background-color: #f4f4f4;
+}
 
 body {
-    margin: 2px;
+    width: 100%;
+    max-width: 900px;
+    min-height: 100vh;
+    margin: 0 auto;
+    padding: 32px 20px 48px;
     font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
     color: #333;
-    line-height: 1.6;
-    font-size: 16px;
+    line-height: 1.5;
+}
+
+a {
+    color: #2563eb;
+}
+
+#admin-link:not([hidden]),
+body > a[href*="login"] {
+    display: inline-block;
+    margin: 0 12px 12px 0;
 }
 
 h1 {
-    margin-bottom: 20px;
+    margin: 12px 0 28px;
+    font-size: 2.25rem;
 }
 
 h2 {
-    margin-top: 20px;
+    margin: 30px 0 10px;
+    font-size: 1.35rem;
 }
 
-textarea, input {
-    width: 30%;
-    min-width: 200px;
+form {
+    padding: 24px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin: 0 0 16px;
+}
+
+label {
+    font-weight: 600;
+}
+
+input,
+textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #aaa;
+    border-radius: 4px;
+    font: inherit;
 }
 
 textarea {
-    height: 50px;
+    min-height: 120px;
+    resize: vertical;
+}
+
+input:focus,
+textarea:focus {
+    border-color: #2563eb;
+    outline: 2px solid rgba(37, 99, 235, 0.2);
+}
+
+button {
+    padding: 10px 16px;
+    border: 0;
+    border-radius: 4px;
+    background-color: #2563eb;
+    color: #fff;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #1d4ed8;
+}
+
+#logout-button {
+    margin-bottom: 12px;
+    background-color: #475569;
+}
+
+#logout-button:hover {
+    background-color: #334155;
+}
+
+#search-form,
+#delete-recipe-form {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 12px;
+}
+
+#add-recipe-submit-input,
+#update-recipe-submit-input {
+    width: 100%;
+}
+
+#delete-recipe-submit-input {
+    background-color: #dc2626;
+}
+
+#delete-recipe-submit-input:hover {
+    background-color: #b91c1c;
+}
+
+#recipe-list {
+    display: grid;
+    gap: 12px;
+    margin: 16px 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+#recipe-list li {
+    padding: 16px 20px;
+    background-color: #fff;
+    border-left: 4px solid #2563eb;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+#recipe-list .recipe-instructions {
+    margin: 6px 0 0;
+}
+
+@media (max-width: 600px) {
+    body {
+        padding: 20px 14px 36px;
+    }
+
+    form {
+        padding: 18px;
+    }
+
+    #search-form,
+    #delete-recipe-form {
+        grid-template-columns: 1fr;
+    }
+
+    #search-form button,
+    #delete-recipe-form button {
+        width: 100%;
+    }
 }
